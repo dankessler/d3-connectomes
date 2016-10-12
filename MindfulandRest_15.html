@@ -78,21 +78,30 @@ path.arc {
 	<!--tension: <input style="position:relative;top:3px;" type="range" min="0" max="100" value="85"><br/>-->
 	
 	Component:
-	<input type="radio" name="component" value="01" onclick="updateData()">1 
-	<input type="radio" name="component" value="02" onclick="updateData()">2 
-	<input type="radio" name="component" value="03" onclick="updateData()">3 
-	<input type="radio" name="component" value="04" onclick="updateData()">4 
-	<input type="radio" name="component" value="05" onclick="updateData()">5 
-	<input type="radio" name="component" value="06" onclick="updateData()">6 
-	<input type="radio" name="component" value="07" onclick="updateData()">7 
-	<input type="radio" name="component" value="08" onclick="updateData()">8 
-	<input type="radio" name="component" value="09" onclick="updateData()">9 
-	<input type="radio" name="component" value="10" onclick="updateData()">10 
-	<input type="radio" name="component" value="11" onclick="updateData()">11 
-	<input type="radio" name="component" value="12" onclick="updateData()">12 
-	<input type="radio" name="component" value="13" onclick="updateData()">13 
-	<input type="radio" name="component" value="14" onclick="updateData()">14 
-	<input type="radio" name="component" value="15" onclick="updateData()">15 <br/>
+	<input type="radio" name="component" value="01" onclick="updateData()" autocomplete="off">1 
+	<input type="radio" name="component" value="02" onclick="updateData()" autocomplete="off">2 
+	<input type="radio" name="component" value="03" onclick="updateData()" autocomplete="off">3 
+	<input type="radio" name="component" value="04" onclick="updateData()" autocomplete="off">4 
+	<input type="radio" name="component" value="05" onclick="updateData()" autocomplete="off">5 
+	<input type="radio" name="component" value="06" onclick="updateData()" autocomplete="off">6 
+	<input type="radio" name="component" value="07" onclick="updateData()" autocomplete="off">7 
+	<input type="radio" name="component" value="08" onclick="updateData()" autocomplete="off">8 
+	<input type="radio" name="component" value="09" onclick="updateData()" autocomplete="off">9 
+	<input type="radio" name="component" value="10" onclick="updateData()" autocomplete="off">10 
+	<input type="radio" name="component" value="11" onclick="updateData()" autocomplete="off">11 
+	<input type="radio" name="component" value="12" onclick="updateData()" autocomplete="off">12 
+	<input type="radio" name="component" value="13" onclick="updateData()" autocomplete="off">13 
+	<input type="radio" name="component" value="14" onclick="updateData()" autocomplete="off">14 
+	<input type="radio" name="component" value="15" onclick="updateData()" autocomplete="off">15 <br/>
+	
+	Hide Networks:
+	<input type="checkbox" name="network" value="1" onclick="updateData()" autocomplete="off">1
+	<input type="checkbox" name="network" value="2" onclick="updateData()" autocomplete="off">2
+	<input type="checkbox" name="network" value="3" onclick="updateData()" autocomplete="off">3
+	<input type="checkbox" name="network" value="4" onclick="updateData()" autocomplete="off">4
+	<input type="checkbox" name="network" value="5" onclick="updateData()" autocomplete="off">5
+	<input type="checkbox" name="network" value="6" onclick="updateData()" autocomplete="off">6
+	<input type="checkbox" name="network" value="7" onclick="updateData()" autocomplete="off">7 <br/>
 	
 	</div>
     <script type="text/javascript" src="d3/d3.js"></script>
@@ -101,6 +110,10 @@ path.arc {
 	
     <script type="text/javascript">
 
+	function get(name) {
+		if(name=(new RegExp('[?&]'+encodeURIComponent(name)+'=([^&]*)')).exec(location.search))
+		return decodeURIComponent(name[1]);
+	}
 var w = 1024,
     h = 768,
     rx = w / 2,
@@ -148,15 +161,44 @@ svg.append("svg:path")
     .attr("d", d3.svg.arc().outerRadius(ry - 120).innerRadius(0).startAngle(0).endAngle(2 * Math.PI));
     //.on("mousedown", mousedown);
 
+function zeroPad(num,places) {
+	var zero = places - num.toString().length + 1;
+	return Array(+(zero > 0 && zero)).join("0") + num;
+}
+
 function updateData() {
-	componentnum = '';
+	skipnets = [];
+	if (get("skipnets")!=null) {
+		skipnets = get("skipnets");
+	}
+	componentnum = '01';
+	if (get("componentnum")!=null) {
+		componentnum = zeroPad(get("componentnum"),2);
+	}
+	
 	var radios = document.getElementsByName('component');
+	idx = parseInt(componentnum) - 1;
+	radios[idx].checked = true;
+	
 	for (var i = 0, length = radios.length; i < length; i++) {
 		if (radios[i].checked) {
 			componentnum = radios[i].value;
 			break;
 		}
 	}
+	var checks = document.getElementsByName('network');
+	for (var i = 0, length = checks.length; i < length; i++) {
+		if (checks[i].checked) {
+			skipnets.push(checks[i].value);
+		}
+	}
+	
+	for (var i = 0, length = skipnets.length; i < length; i++) {
+		idx = parseInt(skipnets[i])-1;
+		if (isNaN(idx)) { continue; }
+		checks[idx].checked = true;
+	}
+	
 	filename = "MindfulandRest_15/Comp" + componentnum + "_1_3_1_2_3_4_5_6_7.json";
 	document.getElementsByName('componentnum')[0].innerHTML = "Component " + componentnum;
 	//window.alert(filename);
@@ -291,6 +333,7 @@ function dot(a, b) {
   return a[0] * b[0] + a[1] * b[1];
 }
 
+updateData();
     </script>
   </body>
 </html>
