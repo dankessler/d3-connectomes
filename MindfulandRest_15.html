@@ -52,14 +52,14 @@ path.arc {
   opacity:1;
 }
 
-.color-pos {
-	stroke: #FF0000;
-	opacity: 0.5;
-	}
-.color-neg {
-	stroke: #0000FF;
-	opacity: 0.5;
-	}
+//.color-pos {
+//	stroke: #FF0000;
+//	opacity: 0.5;
+//	}
+//.color-neg {
+//	stroke: #0000FF;
+//	opacity: 0.5;
+//	}
 	
 .fade {
 	opacity: 0.01;
@@ -103,6 +103,9 @@ path.arc {
 	<input type="checkbox" name="network" value="6" onclick="updateData()" autocomplete="off">6
 	<input type="checkbox" name="network" value="7" onclick="updateData()" autocomplete="off">7 <br/>
 	
+	<input type="checkbox" name="flip" value="-1" onclick="updateData()" autocomplete="off">Flip sign?
+	<br/>
+	
 	</div>
     <script type="text/javascript" src="d3/d3.js"></script>
     <script type="text/javascript" src="d3/d3.layout.js"></script>
@@ -123,6 +126,7 @@ var w = 1024,
 
 var loffset=0,
 	noffset=0,
+	flip=1,
 	skipnets = ["12"],
 	skipsubnets = ["709","710"];
 
@@ -166,7 +170,37 @@ function zeroPad(num,places) {
 	return Array(+(zero > 0 && zero)).join("0") + num;
 }
 
+var mystylesheet = document.createElement('style');
+document.body.appendChild(mystylesheet);
+mystylesheet = document.styleSheets[2];
+
+mystylesheet.insertRule(".color-pos { stroke: #FF0000; opacity: 0.5; }",0);
+mystylesheet.insertRule(".color-neg { stroke: #0000FF; opacity: 0.5; }",1);
+		
 function updateData() {
+	if (get("flip")!=null) {
+		flip = parseInt(get("flip"));
+	}
+	
+	var flipbox = document.getElementsByName('flip');
+	if (flipbox[0].checked) {
+		flip = -1;
+	} else if (flip==-1) {
+		//flipbox[0].checked = true;
+	}
+	
+	if (flip==1) {
+		mystylesheet.deleteRule(1);
+		mystylesheet.deleteRule(0);
+		mystylesheet.insertRule(".color-pos { stroke: #FF0000; opacity: 0.5; }",0);
+		mystylesheet.insertRule(".color-neg { stroke: #0000FF; opacity: 0.5; }",1);
+	} else if(flip==-1) {
+		mystylesheet.deleteRule(1);
+		mystylesheet.deleteRule(0);
+		mystylesheet.insertRule(".color-pos { stroke: #0000FF; opacity: 0.5; }",0);
+		mystylesheet.insertRule(".color-neg { stroke: #FF0000; opacity: 0.5; }",1);
+	}
+	
 	skipnets = [];
 	if (get("skipnets")!=null) {
 		skipnets = get("skipnets");
