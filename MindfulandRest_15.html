@@ -218,7 +218,7 @@ function updateData() {
 	
 	skipnets = [];
 	if (get("skipnets")!=null) {
-		skipnets = get("skipnets");
+		skipnets = get("skipnets").split(",");
 	}
 	componentnum = '01';
 	if (get("componentnum")!=null) {
