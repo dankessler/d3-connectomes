@@ -61,9 +61,9 @@ path.arc {
 //	opacity: 0.5;
 //	}
 	
-.fade {
-	opacity: 0.01;
-	}
+//.fade {
+//	opacity: 0.01;
+//	}
 	
     </style>
   </head>
@@ -105,6 +105,8 @@ path.arc {
 	
 	<input type="checkbox" name="flip" value="-1" onclick="updateData()" autocomplete="off">Flip sign?
 	<br/>
+	<input type="checkbox" name="removenetworks" value="-1" onclick="updateData()" autocomplete="off">Remove Network Names?
+	<br/>
 	
 	</div>
     <script type="text/javascript" src="d3/d3.js"></script>
@@ -127,6 +129,7 @@ var w = 1024,
 var loffset=0,
 	noffset=0,
 	flip=1,
+	removenetworks=1,
 	skipnets = ["12"],
 	skipsubnets = ["709","710"];
 
@@ -176,8 +179,12 @@ mystylesheet = document.styleSheets[2];
 
 mystylesheet.insertRule(".color-pos { stroke: #FF0000; opacity: 0.5; }",0);
 mystylesheet.insertRule(".color-neg { stroke: #0000FF; opacity: 0.5; }",1);
-		
+mystylesheet.insertRule(".fade {opacity: 0.1;}",2);
+
 function updateData() {
+	if (get("removenetworks")!=null) {
+		removenetworks = parseInt(get("removenetworks"));
+	}
 	if (get("flip")!=null) {
 		flip = parseInt(get("flip"));
 	}
@@ -199,6 +206,14 @@ function updateData() {
 		mystylesheet.deleteRule(0);
 		mystylesheet.insertRule(".color-pos { stroke: #0000FF; opacity: 0.5; }",0);
 		mystylesheet.insertRule(".color-neg { stroke: #FF0000; opacity: 0.5; }",1);
+	}
+	
+	var removenetworksbox = document.getElementsByName('removenetworks');
+	if (removenetworksbox[0].checked) {
+		removenetworks = -1;
+	} else {
+		removenetworks = 1;
+		//removenetworksbox[0].checked = true;
 	}
 	
 	skipnets = [];
@@ -240,7 +255,7 @@ function updateData() {
 	svg.selectAll("g.node").remove();
 	
 	d3.json(filename, function(classes) {
-	  var nodes = cluster.nodes(packages.root(classes,skipnets,skipsubnets)),
+	  var nodes = cluster.nodes(packages.root(classes,skipnets,skipsubnets,removenetworks)),
 		  links = packages.imports(nodes),
 		  splines = bundle(links);
 

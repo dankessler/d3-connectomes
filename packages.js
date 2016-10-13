@@ -2,9 +2,10 @@
   packages = {
 
     // Lazily construct the package hierarchy from class names.
-    root: function(classes,skipnets,skipsubnets) {
+    root: function(classes,skipnets,skipsubnets,removenetworks) {
       var map = {};
 
+	  if (removenetworks==null) { removenetworks = 1; }
       function find(name, data) {
         var node = map[name], i;
         if (!node) {
@@ -15,6 +16,11 @@
             node.key = name.substring(i + 1);
 			if (node.subnetstring!=null && node.subnetstring!="") {
 				node.subnetstring = node.parent.name;
+				if (removenetworks==-1) {
+					//grab first portion of name and remove it 
+					var tempname = name.substring(0,i=name.indexOf(".")+1);
+					node.subnetstring = node.subnetstring.replace(tempname,"");
+				}
 			}
           }
         }
